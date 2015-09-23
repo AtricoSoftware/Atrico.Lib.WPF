@@ -1,25 +1,29 @@
-﻿using Atrico.Lib.Assertions;
-using Atrico.Lib.Assertions.Constraints;
-using Atrico.Lib.Assertions.Elements;
+﻿using System.Diagnostics;
+using System.Windows;
 using Atrico.Lib.Testing;
 using Atrico.Lib.Testing.TestAttributes.NUnit;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Atrico.Lib.Dimensions.Tests
 {
-    [TestFixture]
+    [TestFixture, RequiresSTA]
     public class TestEnumComboBox : TestFixtureBase
     {
-        private static object CreateControlWindow()
+        private static Window CreateControlWindow()
         {
-            
+            var window = new Window();
+            return window;
         }
+
         [Test]
         public void TestMethod1()
         {
             // Arrange
+            var win = CreateControlWindow();
 
             // Act
+            win.Show();
+            Debugger.Break();
+            win.Close();
 
             // Assert
         }
