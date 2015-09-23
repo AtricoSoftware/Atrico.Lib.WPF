@@ -15,10 +15,11 @@ namespace Atrico.Lib.WPF.Tests
     [TestFixture, RequiresSTA]
     public class TestEnumComboBox : TestFixtureBase
     {
-        private abstract class TestScaffoldWindow<TContent> : IDisposable where TContent : UIElement
+        private abstract class TestScaffoldWindow<TPeer, TContent> : IDisposable where TPeer : UIElementAutomationPeer where TContent : UIElement
         {
             private readonly Window _window;
 
+            public TPeer ContentPeer { get; private set; }
             public TContent Content { get; private set; }
 
             protected TestScaffoldWindow(object content)
@@ -26,8 +27,8 @@ namespace Atrico.Lib.WPF.Tests
                 _window = new Window {Content = content};
                 var windowPeer = new WindowAutomationPeer(_window);
                 _window.Show();
-                var contentPeer = windowPeer.GetChildren()[0] as UIElementAutomationPeer;
-                Content = (contentPeer != null ? contentPeer.Owner as TContent : null);
+                ContentPeer = windowPeer.GetChildren()[0] as TPeer;
+                Content = (ContentPeer != null ? ContentPeer.Owner as TContent : null);
            }
 
 
@@ -55,7 +56,7 @@ namespace Atrico.Lib.WPF.Tests
             #endregion
         }
 
-        private class TestEnumComboBoxWindow : TestScaffoldWindow<ComboBox>
+        private class TestEnumComboBoxWindow : TestScaffoldWindow<ComboBoxAutomationPeer, EnumComboBox>
         {
             public TestEnumComboBoxWindow()
                 : base(CreateContent())
@@ -86,9 +87,10 @@ namespace Atrico.Lib.WPF.Tests
                 // Arrange
 
                 // Act
-                var items = win.Content.Items;
+                win.Content.EnumType = typeof(TestEnum);
 
                 // Assert
+                var items = win.Content.Items;
                 Assert.That(Value.Of(items).Count().Is().EqualTo(5), "Correct number of items");
                 Assert.That(Value.Of(items[0]).Is().EqualTo(TestEnum.One), "Item1");
                 Assert.That(Value.Of(items[1]).Is().EqualTo(TestEnum.Two), "Item2");
