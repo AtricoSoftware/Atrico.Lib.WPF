@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using Atrico.Lib.Common.PropertyContainer;
+using Atrico.Lib.WPF.PropertyContainer;
 
 namespace Atrico.Lib.WPF.Controls
 {
@@ -35,24 +37,28 @@ namespace Atrico.Lib.WPF.Controls
     /// </summary>
     public class EnumComboBox : ComboBox
     {
+        private readonly IPropertyContainer _dependencyProperties;
+
         static EnumComboBox()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(EnumComboBox), new FrameworkPropertyMetadata(typeof(EnumComboBox)));
         }
 
-        public static readonly DependencyProperty EnumTypeProperty = DependencyProperty.Register(
-            "EnumType", typeof(Type), typeof(EnumComboBox), new PropertyMetadata(default(Type)));
+        public EnumComboBox()
+        {
+            _dependencyProperties = new DependencyPropertyContainer(this);
+        }
 
         public Type EnumType
         {
-            get { return (Type)GetValue(EnumTypeProperty); }
+            get { return _dependencyProperties.Get<Type>(); }
             set
             {
                 if (value == EnumType)
                 {
                     return;
                 }
-                SetValue(EnumTypeProperty, value);
+                _dependencyProperties.Set(value);
                 PopulateItems(value);
             }
         }
@@ -61,9 +67,11 @@ namespace Atrico.Lib.WPF.Controls
         {
             BeginInit();
             Items.Clear();
-            foreach (var value in Enum.GetValues(enumType)) Items.Add(value);
+            foreach (var value in Enum.GetValues(enumType))
+            {
+                Items.Add(value);
+            }
             EndInit();
-
         }
     }
 }
